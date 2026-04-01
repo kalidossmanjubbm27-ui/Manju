@@ -1,0 +1,36 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        if (s.length() <= 1) return s;
+
+        int start = 0, maxLen = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            // Case 1: Odd length (e.g., "aba", center is 'b')
+            expandAroundCenter(s, i, i, start, maxLen);
+            // Case 2: Even length (e.g., "abba", center is between 'b's)
+            expandAroundCenter(s, i, i + 1, start, maxLen);
+        }
+
+        return s.substr(start, maxLen);
+    }
+
+private:
+    void expandAroundCenter(const string& s, int left, int right, int& start, int& maxLen) {
+        while (left >= 0 && right < s.length() && s[left] == s[right]) {
+            int currentLen = right - left + 1;
+            if (currentLen > maxLen) {
+                start = left;
+                maxLen = currentLen;
+            }
+            left--;
+            right++;
+        }
+    }
+};
