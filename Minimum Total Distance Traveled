@@ -1,0 +1,50 @@
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    long long minimumTotalDistance(vector<int>& robot, vector<vector<int>>& factory) {
+        // 1. Sort robots and factories by position
+        sort(robot.begin(), robot.end());
+        sort(factory.begin(), factory.end());
+
+        // 2. Flatten factories: [pos, limit] -> [pos, pos, pos...]
+        vector<long long> factory_slots;
+        for (auto& f : factory) {
+            for (int i = 0; i < f[1]; ++i) {
+                factory_slots.push_back(f[0]);
+            }
+        }
+
+        int n = robot.size();
+        int m = factory_slots.size();
+
+        // 3. DP Table: dp[i][j] is min distance for first i robots using first j slots
+        // Using long long because distances can exceed 32-bit integer limits
+        // Initialize with a very large value (Infinity)
+        vector<vector<long long>> dp(n + 1, vector<long long>(m + 1, 1e15));
+
+        // Base case: 0 robots fixed costs 0 distance
+        for (int j = 0; j <= m; ++j) {
+            dp[0][j] = 0;
+        }
+
+        // 4. Fill DP table
+        for (int i = 1; i <= n; ++i) { // For each robot
+            for (int j = 1; j <= m; ++j) { // For each factory slot
+                // Option A: Skip this factory slot
+                dp[i][j] = dp[i][j - 1];
+
+                // Option B: Assign robot i-1 to slot j-1
+                // Current distance = |robot position - factory position|
+                long long current_dist = abs((long long)robot[i - 1] - factory_slots[j - 1]);
+                dp[i][j] = min(dp[i][j], dp[i - 1][j - 1] + current_dist);
+            }
+        }
+
+        return dp[n][m];
+    }
+};
